@@ -51,15 +51,30 @@ public class Sudoku {
 	public static final int SIZE = 9;  // size of the whole 9x9 puzzle
 	public static final int PART = 3;  // size of each 3x3 part
 	public static final int MAX_SOLUTIONS = 100;
+	private Spot[][] board;
 
 	// Provided various static utility methods to
 	// convert data formats to int[][] grid.
+
+	/* Implementation idea: Create inner class 'Square'
+		and divide the board into 2-dimensional array of
+		Squares each one being 3x3 grid of spots. Don't
+		have enough time to implement this unfortunately. */
 
 	/**
 	 * Sets up based on the given ints.
 	 */
 	public Sudoku(int[][] ints) {
+		board = new Spot[SIZE][SIZE];
+		copyBoard(ints);
+		//board[0][2].setValue(2);
+		board[0][3].computeWeight();
+		System.out.println(board[0][3].getWeight());
 		// YOUR CODE HERE
+	}
+
+	public Sudoku(String text) {
+		this(stringsToGrid(text));
 	}
 
 	/**
@@ -131,7 +146,7 @@ public class Sudoku {
 	// solving hardGrid.
 	public static void main(String[] args) {
 		Sudoku sudoku;
-		sudoku = new Sudoku(hardGrid);
+		sudoku = new Sudoku(mediumGrid);
 
 		System.out.println(sudoku); // print the raw problem
 		int count = sudoku.solve();
@@ -141,10 +156,33 @@ public class Sudoku {
 	}
 
 	/**
+	 * @param ints
+	 */
+	private void copyBoard(int[][] ints) {
+		for (int i = 0; i < ints.length; i++) {
+			for (int j = 0; j < ints[i].length; j++) {
+				board[i][j] = new Spot(i, j, ints[i][j]);
+			}
+		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (Spot[] i : board) {
+			for (Spot j : i) {
+				builder.append(j.getValue() + "  ");
+			}
+			builder.append("\n");
+		}
+		return builder.toString();
+	}
+
+	/**
 	 * Solves the puzzle, invoking the underlying recursive search.
 	 */
 	public int solve() {
-		return 0; // YOUR CODE HERE
+		return 0;
 	}
 
 	public String getSolutionText() {
@@ -153,6 +191,88 @@ public class Sudoku {
 
 	public long getElapsed() {
 		return 0; // YOUR CODE HERE
+	}
+
+	private class Spot implements Comparable {
+		private int row;
+		private int col;
+		private int value;
+		private int weight;
+		private boolean computed;
+
+		public Spot(int row, int col, int value) {
+			this.row = row;
+			this.col = col;
+			this.value = value;
+			this.computed = false;
+		}
+
+		public Spot(int row, int col) {
+			this(row, col, 0);
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public void setValue(int value) {
+			if (checkSquare(value) && checkRow(value) && checkColumn(value)) {
+				this.value = value;
+			}
+		}
+
+		public int getWeight() {
+			if (!computed)
+				throw new RuntimeException("Weights must be computed before getWeight() is called.");
+			return this.weight;
+		}
+
+		public void computeWeight() {
+			int weight = 9;
+			for (int i = 1; i < 10; i++) {
+				if (!checkColumn(i) || !checkRow(i) || !checkSquare(i))
+					weight--;
+			}
+			this.weight = weight;
+		}
+
+		private boolean checkSquare(int value) {
+			int x = row / 3 * PART;
+			int y = col / 3 * PART;
+			boolean flag = true;
+			for (int i = 0; i < PART; i++) {
+				for (int j = 0; j < PART; j++) {
+					if (board[x + i][y + j].getValue() == value)
+						flag = false;
+				}
+			}
+			return flag;
+		}
+
+		private boolean checkColumn(int value) {
+			boolean flag = true;
+			for (Spot[] s : board) {
+				if (s[col].getValue() == value)
+					flag = false;
+			}
+			return flag;
+		}
+
+		private boolean checkRow(int value) {
+			boolean flag = true;
+			for (Spot s : board[row]) {
+				if (s.getValue() == value)
+					flag = false;
+			}
+			return flag;
+		}
+
+		@Override
+		public int compareTo(Object that) {
+			if (this.getWeight() < ((Spot) that).getWeight()) return -1;
+			if (this.getWeight() > ((Spot) that).getWeight()) return 1;
+			return 0;
+		}
 	}
 
 }
