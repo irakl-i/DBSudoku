@@ -1,5 +1,9 @@
 package assign3;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /*
  * Encapsulates a Sudoku grid to be solved.
  * CS108 Stanford.
@@ -51,7 +55,26 @@ public class Sudoku {
 	public static final int SIZE = 9;  // size of the whole 9x9 puzzle
 	public static final int PART = 3;  // size of each 3x3 part
 	public static final int MAX_SOLUTIONS = 100;
+
+	/**
+	 * Private copy of the board.
+	 */
 	private Spot[][] board;
+
+	/**
+	 * List of spots that need to be assigned a number.
+	 */
+	private List<Spot> spots;
+
+	/**
+	 * List of strings that store solutions.
+	 */
+	private List<String> solutions;
+
+	/**
+	 * Stores how much time solve() took to solve the board.
+	 */
+	private long elapsed;
 
 	// Provided various static utility methods to
 	// convert data formats to int[][] grid.
@@ -66,13 +89,18 @@ public class Sudoku {
 	 */
 	public Sudoku(int[][] ints) {
 		board = new Spot[SIZE][SIZE];
+		spots = new ArrayList<>();
+		solutions = new ArrayList<>();
+		elapsed = 0L;
 		copyBoard(ints);
-		//board[0][2].setValue(2);
-		board[0][3].computeWeight();
-		System.out.println(board[0][3].getWeight());
-		// YOUR CODE HERE
+		computeWeights();
+		Collections.sort(spots);
 	}
 
+	/**
+	 * Calls main constructor with correct arguments.
+	 * @param text
+	 */
 	public Sudoku(String text) {
 		this(stringsToGrid(text));
 	}
@@ -146,7 +174,7 @@ public class Sudoku {
 	// solving hardGrid.
 	public static void main(String[] args) {
 		Sudoku sudoku;
-		sudoku = new Sudoku(mediumGrid);
+		sudoku = new Sudoku(hardGrid);
 
 		System.out.println(sudoku); // print the raw problem
 		int count = sudoku.solve();
@@ -156,6 +184,21 @@ public class Sudoku {
 	}
 
 	/**
+	 * Computes weights of each spot on the board.
+	 */
+	private void computeWeights() {
+		for (Spot[] i : board) {
+			for (Spot j : i) {
+				if (j.getValue() == 0) {
+					j.computeWeight();
+					spots.add(j);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Copies given board to local instance variable.
 	 * @param ints
 	 */
 	private void copyBoard(int[][] ints) {
@@ -182,24 +225,84 @@ public class Sudoku {
 	 * Solves the puzzle, invoking the underlying recursive search.
 	 */
 	public int solve() {
-		return 0;
+		long start = System.currentTimeMillis();
+		solveRecursively(0);
+		long end = System.currentTimeMillis();
+
+		elapsed = end - start;
+		return solutions.size();
 	}
 
+	/**
+	 * Recursively solves Sudoku board.
+	 * @param index start
+	 */
+	private void solveRecursively(int index) {
+		// If we've found more than 100 solutions no need to continue anymore.
+		if (solutions.size() >= MAX_SOLUTIONS)
+			return;
+
+		// If we've successfully assigned a number to every element in the
+		// spots list that means we've completed the board and need to save
+		// it to the solutions list.
+		if (index > spots.size() - 1) {
+			solutions.add(this.toString());
+			return;
+		}
+
+		// Tries to assign every valid number to each spot in the list. After
+		// assigning number to a spot lets the recursion do its thing and then
+		// removes the number and tries something else.
+		Spot s = spots.get(index);
+		for (int i = 1; i < 10; i++) {
+			if (s.setValue(i)) {
+				solveRecursively(index + 1);
+				s.setValue(0);
+			}
+		}
+	}
+
+	/**
+	 * Returns a solution in a string form.
+	 *
+	 * @return solution
+	 */
 	public String getSolutionText() {
-		return ""; // YOUR CODE HERE
+		return solutions.get(0);
 	}
 
+	/**
+	 * Returns time that was needed to recursively solve Sudoku board.
+	 *
+	 * @return elapsed time
+	 */
 	public long getElapsed() {
-		return 0; // YOUR CODE HERE
+		return elapsed;
 	}
 
-	private class Spot implements Comparable {
+
+	private class Spot implements Comparable<Spot> {
+		/**
+		 * Each spot stores its row, column and value.
+		 */
 		private int row;
 		private int col;
 		private int value;
+
+		/**
+		 * Stores how many different values it can take and if
+		 * that value is already computed.
+		 */
 		private int weight;
 		private boolean computed;
 
+		/**
+		 * Constructor.
+		 *
+		 * @param row
+		 * @param col
+		 * @param value
+		 */
 		public Spot(int row, int col, int value) {
 			this.row = row;
 			this.col = col;
@@ -207,38 +310,87 @@ public class Sudoku {
 			this.computed = false;
 		}
 
+		/**
+		 * Calls default constructor with 0 value.
+		 *
+		 * @param row
+		 * @param col
+		 */
 		public Spot(int row, int col) {
 			this(row, col, 0);
 		}
 
+		/**
+		 * Gets the value of the spot.
+		 *
+		 * @return value
+		 */
 		public int getValue() {
 			return value;
 		}
 
-		public void setValue(int value) {
-			if (checkSquare(value) && checkRow(value) && checkColumn(value)) {
+		/**
+		 * Sets the value of the spot.
+		 *
+		 * @param value
+		 * @return true if successful
+		 */
+		public boolean setValue(int value) {
+			if (value == 0 || (checkSquare(value) && checkRow(value) && checkColumn(value))) {
 				this.value = value;
+				return true;
 			}
+			return false;
 		}
 
+		/**
+		 * Gets the weight of the spot.
+		 * Weight means how many numbers
+		 * current spot can take.
+		 *
+		 * @return weight
+		 */
 		public int getWeight() {
-			if (!computed)
+			// Makes sure weight is computed before
+			// returning anything invalid.
+			if (!computed) {
 				throw new RuntimeException("Weights must be computed before getWeight() is called.");
+			}
 			return this.weight;
 		}
 
+		/**
+		 * Computes weight value for this spot.
+		 */
 		public void computeWeight() {
+			// Weight's value is at most 9.
 			int weight = 9;
+
+			// Check every assignable number, subtract 1 every time given
+			// number is invalid for this spot.
 			for (int i = 1; i < 10; i++) {
-				if (!checkColumn(i) || !checkRow(i) || !checkSquare(i))
+				if (!checkColumn(i) || !checkRow(i) || !checkSquare(i)) {
 					weight--;
+				}
 			}
+
+			// Update the weight and its state.
 			this.weight = weight;
+			computed = true;
 		}
 
+		/**
+		 * Checks if given value is unique in this spot's square.
+		 *
+		 * @param value
+		 * @return true if the value's unique
+		 */
 		private boolean checkSquare(int value) {
-			int x = row / 3 * PART;
-			int y = col / 3 * PART;
+			// Calculate square's start coordinates. Works because of the integer division.
+			int x = (row / PART) * PART;
+			int y = (col / PART) * PART;
+
+			// Check if the given value is present in this square.
 			boolean flag = true;
 			for (int i = 0; i < PART; i++) {
 				for (int j = 0; j < PART; j++) {
@@ -249,6 +401,12 @@ public class Sudoku {
 			return flag;
 		}
 
+		/**
+		 * Checks if given value is unique in this spot's column.
+		 *
+		 * @param value
+		 * @return true if the value's unique
+		 */
 		private boolean checkColumn(int value) {
 			boolean flag = true;
 			for (Spot[] s : board) {
@@ -258,6 +416,12 @@ public class Sudoku {
 			return flag;
 		}
 
+		/**
+		 * Checks if given value is unique in this spot's row.
+		 *
+		 * @param value
+		 * @return true if the value's unique
+		 */
 		private boolean checkRow(int value) {
 			boolean flag = true;
 			for (Spot s : board[row]) {
@@ -268,10 +432,15 @@ public class Sudoku {
 		}
 
 		@Override
-		public int compareTo(Object that) {
-			if (this.getWeight() < ((Spot) that).getWeight()) return -1;
-			if (this.getWeight() > ((Spot) that).getWeight()) return 1;
+		public int compareTo(Spot that) {
+			if (this.getWeight() < that.getWeight()) return -1;
+			if (this.getWeight() > that.getWeight()) return 1;
 			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return "[" + col + "]" + "[" + row + "] \t V: " + value + ", W: " + weight;
 		}
 	}
 
