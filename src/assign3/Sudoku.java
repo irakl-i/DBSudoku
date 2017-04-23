@@ -345,14 +345,11 @@ public class Sudoku {
 
 		/**
 		 * Gets the weight of the spot.
-		 * Weight means how many numbers
-		 * current spot can take.
 		 *
 		 * @return weight
 		 */
 		public int getWeight() {
-			// Makes sure weight is computed before
-			// returning anything invalid.
+			// Makes sure weight is computed before returning anything invalid.
 			if (!computed) {
 				throw new RuntimeException("Weights must be computed before getWeight() is called.");
 			}
