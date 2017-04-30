@@ -25,6 +25,16 @@ public class Sudoku {
 			"0 7 3 5 0 9 0 0 1",
 			"4 0 0 0 0 0 6 7 9");
 
+	public static final int[][] zeroGrid = Sudoku.stringsToGrid(
+			"0 0 0 0 0 0 0 0 0",
+			"0 0 0 0 0 0 0 0 0",
+			"0 0 0 0 0 0 0 0 0",
+			"0 0 0 0 0 0 0 0 0",
+			"0 0 0 0 0 0 0 0 0",
+			"0 0 0 0 0 0 0 0 0",
+			"0 0 0 0 0 0 0 0 0",
+			"0 0 0 0 0 9 0 0 0",
+			"0 0 0 0 0 0 6 0 0");
 
 	// Provided medium 5 3 grid
 	public static final int[][] mediumGrid = Sudoku.stringsToGrid(
@@ -99,10 +109,11 @@ public class Sudoku {
 
 	/**
 	 * Calls main constructor with correct arguments.
+	 *
 	 * @param text
 	 */
 	public Sudoku(String text) {
-		this(stringsToGrid(text));
+		this(textToGrid(text));
 	}
 
 	/**
@@ -176,8 +187,10 @@ public class Sudoku {
 		Sudoku sudoku;
 		sudoku = new Sudoku(hardGrid);
 
-		System.out.println(sudoku); // print the raw problem
 		int count = sudoku.solve();
+		sudoku = new Sudoku(sudoku.getSolutionText());
+		System.out.println(sudoku); // print the raw problem
+		count = sudoku.solve();
 		System.out.println("solutions:" + count);
 		System.out.println("elapsed:" + sudoku.getElapsed() + "ms");
 		System.out.println(sudoku.getSolutionText());
@@ -199,6 +212,7 @@ public class Sudoku {
 
 	/**
 	 * Copies given board to local instance variable.
+	 *
 	 * @param ints
 	 */
 	private void copyBoard(int[][] ints) {
@@ -214,7 +228,7 @@ public class Sudoku {
 		StringBuilder builder = new StringBuilder();
 		for (Spot[] i : board) {
 			for (Spot j : i) {
-				builder.append(j.getValue() + "  ");
+				builder.append(j.getValue() + " ");
 			}
 			builder.append("\n");
 		}
@@ -235,11 +249,12 @@ public class Sudoku {
 
 	/**
 	 * Recursively solves Sudoku board.
+	 *
 	 * @param index start
 	 */
 	private void solveRecursively(int index) {
 		// If we've found more than 100 solutions no need to continue anymore.
-		if (solutions.size() >= MAX_SOLUTIONS)
+		if (solutions.size() >= MAX_SOLUTIONS || spots.isEmpty())
 			return;
 
 		// If we've successfully assigned a number to every element in the
@@ -268,7 +283,7 @@ public class Sudoku {
 	 * @return solution
 	 */
 	public String getSolutionText() {
-		return solutions.get(0);
+		return !solutions.isEmpty() ? solutions.get(0) : "";
 	}
 
 	/**
