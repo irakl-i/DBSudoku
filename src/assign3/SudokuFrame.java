@@ -45,7 +45,7 @@ public class SudokuFrame extends JFrame {
 		} catch (Exception ignored) {
 		}
 
-		SudokuFrame frame = new SudokuFrame();
+		new SudokuFrame();
 	}
 
 	/**
@@ -105,12 +105,12 @@ public class SudokuFrame extends JFrame {
 	 */
 	private void addTextAreas() {
 		// Add puzzle text area.
-		puzzleArea = new JTextArea(15, 20);
+		puzzleArea = new JTextArea(16, 32);
 		puzzleArea.setBorder(new TitledBorder("Puzzle"));
-		add(puzzleArea, BorderLayout.CENTER);
+		add(puzzleArea, BorderLayout.WEST); // Could be BorderLayout.CENTER
 
 		// Add solution text area.
-		solutionArea = new JTextArea(15, 20);
+		solutionArea = new JTextArea(16, 32);
 		solutionArea.setBorder(new TitledBorder("Solution"));
 		add(solutionArea, BorderLayout.EAST);
 	}
