@@ -9,7 +9,6 @@ public class MetropolisView extends JFrame {
 
 	private static final String LARGER_THAN = "Population Larger Than";
 	private static final String SMALLER_THAN = "Population Smaller Than";
-	private static final String EQUAL_TO = "Population Equal To";
 	private static final String EXACT_MATCH = "Exact Match";
 	private static final String PARTIAL_MATCH = "Partial Match";
 	private static final int TEXT_FIELD_LENGTH = 10;
@@ -39,6 +38,10 @@ public class MetropolisView extends JFrame {
 	private JComponent content;
 
 
+	/**
+	 * Constructs a view.
+	 * @param title of the window
+	 */
 	public MetropolisView(String title) {
 		super(title);
 
@@ -46,12 +49,48 @@ public class MetropolisView extends JFrame {
 		table = new JTable(model);
 		content = (JComponent) getContentPane();
 
-
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setPreferredSize(new Dimension(SCROLL_PANE_WIDTH, SCROLL_PANE_HEIGHT));
 		content.add(scrollPane, FlowLayout.LEFT);
 
+		addTopPanel();
+		addLeftPanel();
+		addComboBox();
+		addListeners();
 
+		// Default stuff.
+		setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+		setLocationByPlatform(true);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		pack();
+		setVisible(true);
+	}
+
+	/**
+	 * Adds listeners to search and add buttons.
+	 */
+	private void addListeners() {
+		addButton.addActionListener(e -> model.addEntry(
+				new Entry(metropolisField.getText(), continentField.getText(), parsePopulation(populationField.getText()))));
+
+		searchButton.addActionListener(e -> model.searchEntry(
+				new Entry(metropolisField.getText(), continentField.getText(), parsePopulation(populationField.getText())),
+				populationPulldown.getSelectedIndex() == 0, matchTypePulldown.getSelectedIndex() == 0));
+	}
+
+	/**
+	 * Parses int from String without crashing.
+	 * @param population string
+	 * @return population int
+	 */
+	private int parsePopulation(String population) {
+		return population.isEmpty() ? 0 : Integer.parseInt(population);
+	}
+
+	/**
+	 * Adds top panel to the window.
+	 */
+	private void addTopPanel() {
 		northPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		add(northPanel, BorderLayout.NORTH);
 
@@ -65,8 +104,12 @@ public class MetropolisView extends JFrame {
 		northPanel.add(continentField);
 		northPanel.add(new JLabel("Population: "));
 		northPanel.add(populationField);
+	}
 
-
+	/**
+	 * Adds left panel and buttons on that panel.
+	 */
+	private void addLeftPanel() {
 		eastPanel = new JPanel();
 		eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
 		content.add(eastPanel, BorderLayout.EAST);
@@ -75,14 +118,17 @@ public class MetropolisView extends JFrame {
 		searchButton = new JButton("Search");
 		eastPanel.add(addButton, BorderLayout.WEST);
 		eastPanel.add(searchButton, BorderLayout.WEST);
+	}
 
-
+	/**
+	 * Adds combo box on the left panel.
+	 */
+	private void addComboBox() {
 		comboBoxPanel = new JPanel();
 		comboBoxPanel.setBorder(new TitledBorder("Search Options"));
 		comboBoxPanel.setPreferredSize(new Dimension(SCROLL_PANE_WIDTH / 2, SCROLL_PANE_HEIGHT / 2));
 
-
-		populationPulldown = new JComboBox<>(new String[]{LARGER_THAN, SMALLER_THAN, EQUAL_TO});
+		populationPulldown = new JComboBox<>(new String[]{LARGER_THAN, SMALLER_THAN});
 		populationPulldown.setPreferredSize(new Dimension(PULLDOWN_WIDTH, PULLDOWN_HEIGHT));
 
 		matchTypePulldown = new JComboBox<>(new String[]{EXACT_MATCH, PARTIAL_MATCH});
@@ -91,14 +137,6 @@ public class MetropolisView extends JFrame {
 		comboBoxPanel.add(populationPulldown, BorderLayout.WEST);
 		comboBoxPanel.add(matchTypePulldown, BorderLayout.WEST);
 		eastPanel.add(comboBoxPanel);
-
-
-		// Default stuff.
-		setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-		setLocationByPlatform(true);
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		pack();
-		setVisible(true);
 	}
 
 	public static void main(String[] args) {
