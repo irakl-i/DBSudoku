@@ -165,4 +165,11 @@ public class MetropolisTableModel extends AbstractTableModel {
 		fireTableRowsInserted(data.size() - 1, data.size() - 1);
 		return (data.size() - 1);
 	}
+
+	/**
+	 * Tells access to close the connection to the database.
+	 */
+	public void closeConnection() {
+		access.closeConnection();
+	}
 }

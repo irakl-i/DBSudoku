@@ -3,6 +3,8 @@ package assign3;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 
 public class MetropolisView extends JFrame {
@@ -57,6 +59,15 @@ public class MetropolisView extends JFrame {
 		addLeftPanel();
 		addComboBox();
 		addListeners();
+
+		// Makes sure that the connection to the database
+		// is closed before exiting the application.
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				model.closeConnection();
+			}
+		});
 
 		// Default stuff.
 		setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
