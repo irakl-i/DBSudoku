@@ -7,8 +7,8 @@ import java.util.List;
 
 public class MetropolisTableModel extends AbstractTableModel {
 
-	private List<String> columnNames; // defines the number of cols
-	private List<List> data; // one List for each row
+	private List<String> columnNames;
+	private List<List> data;
 	private List<Entry> entries;
 	private DatabaseAccess access;
 
@@ -37,7 +37,7 @@ public class MetropolisTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Returns the name of each col, numbered 0..columns-1
+	 * Returns the name of each col, numbered 0..columns-1.
 	 *
 	 * @param col column
 	 * @return column name
@@ -47,7 +47,7 @@ public class MetropolisTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Returns the number of columns
+	 * Returns the number of columns.
 	 *
 	 * @return number of columns
 	 */
@@ -56,7 +56,7 @@ public class MetropolisTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Returns the number of rows
+	 * Returns the number of rows.
 	 *
 	 * @return number of rows
 	 */
@@ -78,12 +78,12 @@ public class MetropolisTableModel extends AbstractTableModel {
 			result = rowList.get(col);
 		}
 
-		// _apparently_ it's ok to return null for a "blank" cell
+		// _apparently_ it's ok to return null for a "blank" cell.
 		return (result);
 	}
 
 	/**
-	 * Returns true if a cell should be editable in the table
+	 * Returns true if a cell should be editable in the table.
 	 *
 	 * @param row
 	 * @param col
@@ -94,7 +94,7 @@ public class MetropolisTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Changes the value of a cell
+	 * Changes the value of a cell.
 	 *
 	 * @param value
 	 * @param row
@@ -104,22 +104,22 @@ public class MetropolisTableModel extends AbstractTableModel {
 	public void setValueAt(Object value, int row, int col) {
 		List rowList = data.get(row);
 
-		// make this row long enough
+		// make this row long enough.
 		if (col >= rowList.size()) {
 			while (col >= rowList.size()) {
 				rowList.add(null);
 			}
 		}
 
-		// install the data
+		// install the data.
 		rowList.set(col, value);
 
-		// notify model listeners of cell change
+		// notify model listeners of cell change.
 		fireTableCellUpdated(row, col);
 	}
 
 	/**
-	 * Adds entry to the table and the database
+	 * Adds entry to the table and the database.
 	 *
 	 * @param entry
 	 */
@@ -134,7 +134,7 @@ public class MetropolisTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Searches entry based on search modifiers
+	 * Searches entry based on search modifiers.
 	 *
 	 * @param entry  value
 	 * @param larger modifier
@@ -147,7 +147,7 @@ public class MetropolisTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Resets the table
+	 * Resets the table.
 	 */
 	private void resetTable() {
 		data.clear();
@@ -155,10 +155,10 @@ public class MetropolisTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Adds the given row, returns the new row index
+	 * Adds the given row, returns the new row index.
 	 *
 	 * @param row
-	 * @return
+	 * @return new row index
 	 */
 	public int addRow(List row) {
 		data.add(row);
