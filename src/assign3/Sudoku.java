@@ -25,17 +25,6 @@ public class Sudoku {
 			"0 7 3 5 0 9 0 0 1",
 			"4 0 0 0 0 0 6 7 9");
 
-	public static final int[][] zeroGrid = Sudoku.stringsToGrid(
-			"0 0 0 0 0 0 0 0 0",
-			"0 0 0 0 0 0 0 0 0",
-			"0 0 0 0 0 0 0 0 0",
-			"0 0 0 0 0 0 0 0 0",
-			"0 0 0 0 0 0 0 0 0",
-			"0 0 0 0 0 0 0 0 0",
-			"0 0 0 0 0 0 0 0 0",
-			"0 0 0 0 0 9 0 0 0",
-			"0 0 0 0 0 0 6 0 0");
-
 	// Provided medium 5 3 grid
 	public static final int[][] mediumGrid = Sudoku.stringsToGrid(
 			"530070000",
@@ -185,12 +174,10 @@ public class Sudoku {
 	// solving hardGrid.
 	public static void main(String[] args) {
 		Sudoku sudoku;
-		sudoku = new Sudoku(hardGrid);
+		sudoku = new Sudoku(easyGrid);
 
 		int count = sudoku.solve();
-		sudoku = new Sudoku(sudoku.getSolutionText());
 		System.out.println(sudoku); // print the raw problem
-		count = sudoku.solve();
 		System.out.println("solutions:" + count);
 		System.out.println("elapsed:" + sudoku.getElapsed() + "ms");
 		System.out.println(sudoku.getSolutionText());
